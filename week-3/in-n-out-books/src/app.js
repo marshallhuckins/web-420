@@ -6,7 +6,33 @@
  */
 
 const express = require('express');
+const books = require('../database/books');
+
 const app = express();
+
+// GET /api/books - Return all books
+app.get('/api/books', async (req, res) => {
+    try { 
+        const allBooks = await books.find();
+        res.json(allBooks);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// GET /api/books/:id - Return a single book by ID
+app.get('/api/books/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'ID must be a number' });
+        }
+        const book = await books.findOne({ id });
+        res.json(book);
+    } catch (error) {
+        res.status(404).json({ error: 'Book not found' });
+    }
+});
 
 // Middleware to parse JSON
 app.use(express.json());
